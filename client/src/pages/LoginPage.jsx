@@ -1,9 +1,16 @@
-import React, { useState } from "react";
+import React, { useContext, useRef, useState } from "react";
 import { HiOutlineChatBubbleLeftRight } from "react-icons/hi2";
 import { IoIosArrowBack } from "react-icons/io";
+import { AuthContext } from "../context/AuthContext";
 
 const LoginPage = () => {
-  const [currentState, setCurrentState] = useState("Sign up");
+  const { login } = useContext(AuthContext);
+
+  // const [term, setterm] = useState("checked");
+
+  const termBox = useRef(null);
+
+  const [currentState, setCurrentState] = useState("Login");
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
@@ -23,9 +30,11 @@ const LoginPage = () => {
 
     if (currentState == "Sign up" && !isSubmtted) {
       setisSubmtted(true);
-      console.log(formData);
+      // console.log(formData);
       return;
     }
+
+    login(currentState === "Sign up" ? "signup" : "login", formData);
   };
 
   return (
@@ -99,12 +108,27 @@ const LoginPage = () => {
 
         <button
           type="submit"
-          className="py-3 bg-gradient-to-r from-purple-400 to-violet-600 text-white rounded-md cursor-pointer"
+          // disabled={termBox.current !== "checked"}
+          className={` py-3 bg-gradient-to-r from-purple-400 to-violet-600 text-white rounded-md cursor-pointer ${
+            termBox.current !== "checked"
+              ? "cursor-not-allowed"
+              : "cursor-pointer"
+          } `}
         >
           {currentState == "Sign up" ? "Create Account" : "Login Now"}
         </button>
         <div className="flex items-center gap-2 text-sm text-gray-400">
-          <input type="checkbox" name="terms" id="" />
+          <input
+            type="checkbox"
+            // value={term}
+            ref={termBox}
+            onChange={(e) => {
+              // console.log(termBox.current.value);
+              // console.log(e);
+            }}
+            name="terms"
+            id=""
+          />
           <p>Agree to the terms of use & privacy policy.</p>
         </div>
 

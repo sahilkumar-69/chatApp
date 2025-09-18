@@ -1,13 +1,16 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { HiOutlineChatBubbleLeftRight } from "react-icons/hi2";
-import {  useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { AuthContext } from "../context/AuthContext";
 
 const ProfilePage = () => {
+  const { authUser, updateProfile } = useContext(AuthContext);
+
   const navigate = useNavigate();
   const [selectedImage, setSelectedImage] = useState("");
   const [FormData, setFormData] = useState({
-    name: "",
-    bio: "",
+    name: authUser.fullName,
+    bio: authUser.bio,
   });
 
   const handleOnChange = (e) => {
@@ -19,9 +22,27 @@ const ProfilePage = () => {
     });
   };
 
-  const handleOnSubmit = (e) => {
+  const handleOnSubmit = async (e) => {
     e.preventDefault();
-    navigate("/");
+
+    if (!selectedImage) {
+      await updateProfile({ fullName: FormData.name, bio: FormData.bio });
+      navigate("/");
+      return;
+    }
+
+    const reader = new FileReader();
+
+    reader.readAsDataURL(selectedImage);
+    reader.onload = async () => {
+      const base64Image = reader.result;
+      await updateProfile({
+        profilePic: base64Image,
+        fullName: FormData.name,
+        bio: FormData.bio,
+      });
+      navigate("/");
+    };
   };
 
   return (
@@ -83,11 +104,19 @@ const ProfilePage = () => {
             Save
           </button>
         </form>
-        <HiOutlineChatBubbleLeftRight
-          className="max-w-44 aspect-square rounded-full max-sm:mt-10 mx-10"
-          color="white"
-          size={400}
-        />
+        {authUser.profilePic ? (
+          <img
+            src={authUser.profilePic}
+            alt="profile picture"
+            className={`max-w-44 aspect-square rounded-full mx-10 max-sm:mt-10`}
+          />
+        ) : (
+          <HiOutlineChatBubbleLeftRight
+            className="max-w-44 aspect-square rounded-full max-sm:mt-10 mx-10"
+            color="white"
+            size={400}
+          />
+        )}
       </div>
     </div>
   );

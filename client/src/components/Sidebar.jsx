@@ -5,8 +5,12 @@ import { useNavigate } from "react-router-dom";
 import { FiSearch } from "react-icons/fi";
 import users from "../Assets/DomiData";
 import { RxAvatar } from "react-icons/rx";
+import { useContext } from "react";
+import { AuthContext } from "../context/AuthContext";
 
 const Sidebar = ({ selectedUser, setSelectedUser }) => {
+  const { logOut } = useContext(AuthContext);
+
   const navigate = useNavigate();
   return (
     <div
@@ -29,7 +33,9 @@ const Sidebar = ({ selectedUser, setSelectedUser }) => {
                 Edit Profile
               </p>
               <hr className="my-2 border-t border-gray-500" />
-              <p className="cursor-pointer text-sm">Logout</p>
+              <p onClick={logOut} className="cursor-pointer text-sm">
+                Logout
+              </p>
             </div>
           </div>
         </div>

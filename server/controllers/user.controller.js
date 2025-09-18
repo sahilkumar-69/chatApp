@@ -1,8 +1,9 @@
+import { cloudinary } from "../lib/cloudinary.js";
+import { generateJwtToken } from "../lib/utils.js";
+import { User } from "../models/user.model.js";
+import bcrypt from "bcryptjs";
+
 // sign up function for user
-
-import { generateJwtToken } from "../lib/utils";
-import { User } from "../models/user.model";
-
 export const signUp = async (req, res) => {
   try {
     const { fullName, email, password, bio } = req.body;
@@ -98,7 +99,66 @@ export const login = async (req, res) => {
   }
 };
 
-export const updateProfile = (req, res) => {
+export const updateProfile = async (req, res) => {
   try {
-  } catch (error) {}
+    const { fullName, bio, profilePic } = req.body;
+
+    const userId = req.user._id;
+    let updatedUser;
+    if (!profilePic) {
+      updatedUser = await User.findByIdAndUpdate(
+        userId,
+        {
+          bio,
+          fullName,
+        },
+        {
+          new: true,
+        }
+      );
+    } else {
+      const upload = await cloudinary.uploader.upload(profilePic, {
+        folder: "ChatApp",
+      });
+
+      updatedUser = await User.findByIdAndUpdate(
+        userId,
+        {
+          profilePic: upload.secure_url,
+          bio,
+          fullName,
+        },
+        {
+          new: true,
+        }
+      );
+    }
+
+    res.json({
+      success: true,
+      user: updatedUser,
+    });
+  } catch (error) {
+    console.log(error);
+
+    res.json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+export const checkAuth = async (req, res) => {
+  const user = req?.user;
+  if (user) {
+    return res.json({
+      success: true,
+      user,
+    });
+  } else {
+    return res.json({
+      success: false,
+      message: "User is not authenticated",
+    });
+  }
 };
