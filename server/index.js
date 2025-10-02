@@ -12,7 +12,7 @@ const app = express();
 const server = http.createServer(app);
 
 // middleware setup
-app.use(express.json({ limit: "4mb" }));
+app.use(express.json({ limit: "10mb" }));
 
 app.use(cors());
 
@@ -24,7 +24,7 @@ export const userSocketMap = {};
 
 io.on("connection", (socket) => {
   const userId = socket.handshake.query.userId;
-  console.log("user connected"), userId;
+  console.log("user connected", userId);
 
   if (userId) userSocketMap[userId] = socket.id;
 
@@ -50,6 +50,7 @@ app.use("/api/messages", messageRouter);
 const PORT = process.env.PORT || 4344;
 
 await connectDB();
+
 
 server.listen(PORT, (error) => {
   console.log("Server is running on " + PORT);

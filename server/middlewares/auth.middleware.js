@@ -14,6 +14,8 @@ export const authMiddleware = async (req, res, next) => {
 
     const decodedData = jwt.verify(token, process.env.JWT_SECRET);
 
+    // console.log("decoded", decodedData);
+
     const user = await User.findById(decodedData.userId).select("-password");
 
     if (!user) {
@@ -23,6 +25,7 @@ export const authMiddleware = async (req, res, next) => {
       });
     }
 
+    // console.log("user", user);
     req.user = user;
     next();
   } catch (error) {

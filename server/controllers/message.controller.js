@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import { io, userSocketMap } from "../index.js";
 import { cloudinary } from "../lib/cloudinary.js";
 import { message } from "../models/message.model.js";
@@ -5,11 +6,13 @@ import { User } from "../models/user.model.js";
 
 export const getUsersForSidebar = async (req, res) => {
   try {
-    const { userId } = req.user;
+    const { _id: userId } = req.user;
 
-    const filteredUser = await User.find({ _id: { $ne: userId } }).select(
-      "-password"
-    );
+    const filteredUser = await User.find({
+      _id: { $ne: userId },
+    }).select("-password");
+
+    // console.log(filteredUser);
 
     const unseenMessages = {};
 
@@ -53,7 +56,7 @@ export const getMessages = async (req, res) => {
       $or: [
         {
           senderId: myId,
-          receiverId: selectedUserId,
+          receiverId: selectedUserId, 
         },
         {
           senderId: selectedUserId,
