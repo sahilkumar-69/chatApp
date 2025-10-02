@@ -4,11 +4,15 @@ import HomePage from "./pages/HomePage";
 import LoginPage from "./pages/LoginPage";
 import ProfilePage from "./pages/ProfilePage";
 import { Toaster } from "react-hot-toast";
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import { AuthContext } from "./context/AuthContext";
 
 function App() {
-  const { authUser } = useContext(AuthContext);
+  const { authUser, checkAuth } = useContext(AuthContext);
+
+  useEffect(() => {
+    checkAuth();
+  },[]);
 
   return (
     <div className=' bg-[url("https://wallpapers.com/images/hd/high-resolution-blue-background-1920-x-1080-9ievy5j853ofx6e1.jpg")] bg-contain  '>

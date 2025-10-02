@@ -95,6 +95,7 @@ export const ChatProvider = ({ children }) => {
     unseenMessages,
     setSelectedUser,
     getUsers,
+    setMessages,
     setUnseenMessages,
     getMessages,
     sendMessages,

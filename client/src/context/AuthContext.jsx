@@ -17,8 +17,14 @@ export const AuthProvider = ({ children }) => {
 
   const checkAuth = async () => {
     try {
-      const { data } = await axios.get("/api/auth/check");
+      const { data } = await axios.get("/api/auth/check", {
+        headers: {
+          token,
+        },
+      });
 
+      // console.log("checkauth", data);
+      // console.log("token", token);
       if (data.success) {
         setAuthUser(data.user);
         connectSocket(data.user);
@@ -34,13 +40,18 @@ export const AuthProvider = ({ children }) => {
     try {
       const { data } = await axios.post(`/api/auth/${state}`, credentials);
 
+      // console.log("Response",response)
+
       if (data.success) {
+        console.log("data", data);
         setAuthUser(data.user);
+        // console.log("authUser", authUser);
         connectSocket(data.user);
 
         axios.defaults.headers.common["token"] = data.token;
 
         setToken(data.token);
+        // console.log("token", token);
         localStorage.setItem("token", data.token);
 
         toast.success(data.message);
@@ -48,7 +59,8 @@ export const AuthProvider = ({ children }) => {
         toast.error(data.message);
       }
     } catch (error) {
-      toast.error(error.message);
+      // console.log(error)
+      toast.error(error.response.data.message);
     }
   };
 
@@ -81,21 +93,31 @@ export const AuthProvider = ({ children }) => {
   };
 
   // connect socket function to handle socket connection and online users updates
-
   const connectSocket = (userData) => {
-    if (!userData || !socket?.connected) return;
+    if (!userData) return;
+
+    // Disconnect old socket if exists
+    if (socket) {
+      socket.disconnect();
+    }
 
     const newSocket = io(backendUrl, {
-      query: {
-        userId: userData._id,
-      },
+      query: { userId: userData._id },
     });
 
-    newSocket.connect();
     setSocket(newSocket);
 
+    newSocket.on("connect", () => {
+      // console.log(" Socket connected:", newSocket.id);
+    });
+
     newSocket.on("getOnlineUsers", (userIds) => {
+      // console.log("userids", userIds);
       setOnlineUsers(userIds);
+    });
+
+    newSocket.on("disconnect", () => {
+      // console.log(" Socket disconnected");
     });
   };
 

@@ -3,15 +3,39 @@ import { HiOutlineMenu } from "react-icons/hi";
 import { HiOutlineChatBubbleLeftRight } from "react-icons/hi2";
 import { useNavigate } from "react-router-dom";
 import { FiSearch } from "react-icons/fi";
-import users from "../Assets/DomiData";
-import { RxAvatar } from "react-icons/rx";
-import { useContext } from "react";
+// import users from "../Assets/DomiData";
+import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../context/AuthContext";
+import { ChatContext } from "../context/ChatContext";
 
-const Sidebar = ({ selectedUser, setSelectedUser }) => {
-  const { logOut } = useContext(AuthContext);
+const Sidebar = () => {
+  const {
+    selectedUser,
+    setSelectedUser,
+    getUsers,
+    users,
+    unseenMessages,
+    setUnseenMessages,
+  } = useContext(ChatContext);
+
+  const [inputSearch, setInputSearch] = useState("");
+
+  const { logOut, onlineUsers } = useContext(AuthContext);
+
+  const filteredUsers = inputSearch
+    ? users.filter((user) =>
+        user.fullName
+          .toLowerCase()
+          .includes(inputSearch.toString().toLowerCase())
+      )
+    : users;
 
   const navigate = useNavigate();
+
+  useEffect(() => {
+    getUsers();
+  }, [onlineUsers]);
+
   return (
     <div
       className={` bg-[#8185B2]/10 h-full p-5 rounded-r-xl  overflow-y-scroll text-white ${
@@ -44,6 +68,10 @@ const Sidebar = ({ selectedUser, setSelectedUser }) => {
           <input
             type="text"
             name=""
+            onChange={(e) => {
+              setInputSearch(e.target.value);
+            }}
+            // value={inputSearch}
             placeholder="Search User..."
             className="bg-transparent border-none outline-none text-white text-xs placeholder-[#c8c8c8] flex-1 "
             id=""
@@ -51,7 +79,7 @@ const Sidebar = ({ selectedUser, setSelectedUser }) => {
         </div>
       </div>
       <div className="flex gap-2 flex-col">
-        {users.map((user, index) => {
+        {filteredUsers.map((user, index) => {
           return [
             <div
               onClick={() => {
@@ -62,34 +90,26 @@ const Sidebar = ({ selectedUser, setSelectedUser }) => {
                 selectedUser?._id === user._id && "bg-[#282142]/50"
               } `}
             >
-              {user?.image ? (
-                <img
-                  src={user.image}
-                  className="w-[35px] aspect-[1/1] rounded-full"
-                  alt="user image"
-                />
-              ) : (
-                <RxAvatar
-                  size={30}
-                  className=" w-[35px] aspect-[1/1] rounded-full"
-                />
-              )}
+              <img
+                src={
+                  user?.profilePic ||
+                  "https://upload.wikimedia.org/wikipedia/commons/8/89/Portrait_Placeholder.png"
+                }
+                className="w-[35px] aspect-[1/1] rounded-full"
+                alt="user image"
+              />
+
               <div className="flex flex-col leading-5">
-                <p>{user.name}</p>
-                <span
-                  className={`text-xs ${
-                    user.status == "online"
-                      ? "text-green-400"
-                      : "text-neutral-400"
-                  }`}
-                >
-                  {user.status}
-                </span>
+                <p>{user.fullName}</p>
+                {onlineUsers.includes(user._id) ? (
+                  <span className="text-xs text-green-400 ">Online</span>
+                ) : (
+                  <span className="text-xs text-neutral-400 ">Offline</span>
+                )}
               </div>
-              {index > 2 && (
+              {unseenMessages[user._id] > 0 && (
                 <p className="absolute top-4 right-4 text-xs h-5 w-5 flex justify-center items-center rounded-full bg-violet-500/50">
-                  {" "}
-                  {index}{" "}
+                  {unseenMessages[user._id]}
                 </p>
               )}
             </div>,

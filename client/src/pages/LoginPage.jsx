@@ -1,23 +1,25 @@
 import React, { useContext, useRef, useState } from "react";
 import { HiOutlineChatBubbleLeftRight } from "react-icons/hi2";
-import { IoIosArrowBack } from "react-icons/io";
+import { IoIosArrowBack, IoMdEye } from "react-icons/io";
 import { AuthContext } from "../context/AuthContext";
 
 const LoginPage = () => {
   const { login } = useContext(AuthContext);
 
-  // const [term, setterm] = useState("checked");
-
   const termBox = useRef(null);
 
+  const [isSubmtted, setisSubmtted] = useState(false);
+
+  const passwordRef = useRef();
+
   const [currentState, setCurrentState] = useState("Login");
+
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
     password: "",
     bio: "",
   });
-  const [isSubmtted, setisSubmtted] = useState(false);
 
   const handleOnChange = (e) => {
     setFormData((prev) => {
@@ -35,6 +37,12 @@ const LoginPage = () => {
     }
 
     login(currentState === "Sign up" ? "signup" : "login", formData);
+  };
+
+  const handleTogglePassword = () => {
+    passwordRef.current.type === "password"
+      ? (passwordRef.current.type = "text")
+      : (passwordRef.current.type = "password");
   };
 
   return (
@@ -82,15 +90,23 @@ const LoginPage = () => {
               value={formData.email}
               onChange={handleOnChange}
             />
-            <input
-              type="password"
-              name="password"
-              className="p-2 border border-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 "
-              placeholder="Password"
-              required
-              value={formData.password}
-              onChange={handleOnChange}
-            />
+            <div className="w-[100%] relative  flex ">
+              <input
+                ref={passwordRef}
+                type="password"
+                name="password"
+                className="p-2 border border-gray-500 w-full rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 "
+                placeholder="Password"
+                required
+                value={formData.password}
+                onChange={handleOnChange}
+              />
+              <IoMdEye
+                onClick={handleTogglePassword}
+                size={20}
+                className="absolute  right-3 top-3 "
+              />
+            </div>
           </>
         )}
 
@@ -120,7 +136,7 @@ const LoginPage = () => {
         <div className="flex items-center gap-2 text-sm text-gray-400">
           <input
             type="checkbox"
-            // value={term}
+            checked
             ref={termBox}
             onChange={(e) => {
               // console.log(termBox.current.value);
