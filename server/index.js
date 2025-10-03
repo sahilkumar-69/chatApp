@@ -49,9 +49,13 @@ app.use("/api/messages", messageRouter);
 
 const PORT = process.env.PORT || 4344;
 
+
 await connectDB();
 
+if (process.env.NODE_ENV !== "production") {
+  server.listen(PORT, (error) => {
+    console.log("Server is running on " + PORT);
+  });
+}
 
-server.listen(PORT, (error) => {
-  console.log("Server is running on " + PORT);
-});
+export default server
